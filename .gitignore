@@ -42,3 +42,6 @@ vendor/src
 # Intellij
 .idea
 *.iml
+
+# Mac osx
+.DS_Store
