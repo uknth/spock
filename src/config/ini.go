@@ -23,10 +23,8 @@ var (
 	errConfigNotLoaded        = errors.New("Config not loaded in cache")
 )
 
-var cf Conf
-
-// New returns a new Conf object
-func New(fileName string) (Conf, error) {
+// NewINI returns a new Conf object
+func NewINI(fileName string) (Conf, error) {
 	cfg, err := ini.Load(fileName)
 	if err != nil {
 		return nil, errors.Wrap(err, "Error loading Configuration")
@@ -35,24 +33,6 @@ func New(fileName string) (Conf, error) {
 		cfg: cfg,
 	}
 	return cf, nil
-}
-
-// Reload reloads default configuration
-func Reload() error {
-	return cf.Reload()
-}
-
-// GetSafe returns config object, but does a check before it sends
-func GetSafe() (Conf, error) {
-	if cf != nil {
-		return cf, nil
-	}
-	return nil, errConfigNotLoaded
-}
-
-// Get returns the config object in memory
-func Get() Conf {
-	return cf
 }
 
 // Conf implementation
@@ -70,10 +50,10 @@ func (c *conf) Sections() ([]Section, error) {
 	return sections, nil
 }
 
-func (c *conf) Section(name string) (Section, error) {
+func (c *conf) Section(name string) Section {
 	return &section{
 		section: c.cfg.Section(name),
-	}, nil
+	}
 }
 
 func (c *conf) Reload() error {
@@ -83,6 +63,10 @@ func (c *conf) Reload() error {
 // section wraps around ini.Section
 type section struct {
 	section *ini.Section
+}
+
+func (s *section) Name() string {
+	return s.section.Name()
 }
 
 func (s *section) HasKey(key string) bool {
@@ -119,6 +103,9 @@ func (k *key) String() string {
 }
 func (k *key) StringS(delim string) []string {
 	return k.ikey.Strings(delim)
+}
+func (k *key) MustString(defaultValue string) string {
+	return k.ikey.MustString(defaultValue)
 }
 func (k *key) Int() (int, error) {
 	return k.ikey.Int()

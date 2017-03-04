@@ -7,6 +7,8 @@
 * @Description: Exposes application level context, initialized at startup
  */
 
+// Package ctx provides a way to initialize application's context which
+// hosts any package that requires pre-initialization
 package ctx
 
 import (
@@ -24,7 +26,11 @@ import (
 */
 
 // contains all available contexts to be loaded on startup
-var ctxs = []C{}
+var ctxs = []C{
+	&logrusCtx{
+		name: "logrus",
+	},
+}
 
 // C exposes application level context's interface
 type C interface {
@@ -37,17 +43,17 @@ func Load(cf config.Conf) error {
 	// Load Application Context
 	log.Println("Application Ctx -")
 	for _, c := range ctxs {
-		log.Println("\tInitializing " + c.Name())
+		log.Println("\tInitializing: " + c.Name())
 		err := c.Init(cf)
 		if err != nil {
-			return errors.Wrap(err, "Error initializing"+c.Name())
+			return errors.Wrap(err, "Error initializing: "+c.Name())
 		}
 	}
 
 	// Load Services
 	log.Println("Service Ctx-")
 	for _, s := range srv.All() {
-		log.Println("\tIntializing " + s.Name())
+		log.Println("\tIntializing: " + s.Name())
 		err := s.Init(cf)
 		if err != nil {
 			return errors.Wrapf(err, "Error Initializing Service: "+s.Name())

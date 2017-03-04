@@ -11,7 +11,11 @@ package srv
 
 import "config"
 
-var services = []S{}
+var services = []S{
+	&eventTracker{
+		name: "eventTracker",
+	},
+}
 
 // S exposes service interface
 type S interface {

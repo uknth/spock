@@ -16,7 +16,7 @@ type Conf interface {
 	Sections() ([]Section, error)
 
 	// Section returns section
-	Section(name string) (Section, error)
+	Section(name string) Section
 
 	// Reload reloads the config object
 	Reload() error
@@ -24,6 +24,7 @@ type Conf interface {
 
 // Section provides method to access section in conf
 type Section interface {
+	Name() string
 	// HasKey checks if a particular key is present in config
 	HasKey(key string) bool
 
@@ -45,6 +46,10 @@ type Key interface {
 	// StringS returns list of string divided by given delimiter.
 	StringS(delim string) []string
 
+	// MustString returns string value if present, if not the default value is
+	// returned
+	MustString(defaultValue string) string
+
 	// Int returns int value, if the value is not int error is returned
 	Int() (int, error)
 
@@ -62,4 +67,36 @@ type Key interface {
 
 	// Value returns the exact value of the key
 	Value() string
+}
+
+var cf Conf
+
+// New returns Conf object based on filename & which parser to use
+func New(filename string, parser ...string) (Conf, error) {
+	switch parser[0] {
+	case "INI":
+		return NewINI(filename)
+	case "TOML":
+		return NewVIPERConf(filename)
+	default:
+		return NewINI(filename)
+	}
+}
+
+// Reload reloads default configuration
+func Reload() error {
+	return cf.Reload()
+}
+
+// GetSafe returns config object, but does a check before it sends
+func GetSafe() (Conf, error) {
+	if cf != nil {
+		return cf, nil
+	}
+	return nil, errConfigNotLoaded
+}
+
+// Get returns the config object in memory
+func Get() Conf {
+	return cf
 }

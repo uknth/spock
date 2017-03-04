@@ -12,6 +12,7 @@ import (
 	"config"
 	"ctx"
 	"log"
+	"network"
 )
 
 var logo = `
@@ -45,12 +46,17 @@ func main() {
 	}
 
 	// Initialize Engine
-	log.Println("3. Initialize Engine")
+	log.Println("Initialize Engine")
 
 	// Start Network
-	log.Println("4. Starting networking interface")
-
+	log.Println("Starting networking interface")
+	srv, err := network.New(cf)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
 	// Start Server
-	log.Println("Starting Server .... ")
-
+	err = network.Start(srv)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
 }

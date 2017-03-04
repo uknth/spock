@@ -9,4 +9,18 @@
 
 package srv
 
-func Notify() {}
+import "config"
+
+type eventTracker struct {
+	name string
+}
+
+// Initialize the configuration here
+func (al *eventTracker) Init(cf config.Conf) error {
+	// Initialize tracker/action
+	return nil
+}
+
+func (al *eventTracker) Name() string {
+	return al.name
+}
